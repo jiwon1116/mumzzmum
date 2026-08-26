@@ -1,6 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathname = usePathname();
+  // Home (/) is the LGPSM landing with its own footer — hide the global one there.
+  if (pathname === "/") return null;
+
   const year = new Date().getFullYear();
   return (
     <footer className="footer">

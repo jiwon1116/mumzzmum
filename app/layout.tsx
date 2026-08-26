@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import { AuthProvider } from "./components/AuthProvider";
 
-const display = Cormorant_Garamond({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  display: "swap",
-});
-
+// Neutral geometric sans as the Eurostile substitute (Bécane system).
 const sans = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
@@ -28,7 +22,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${display.variable} ${sans.variable} h-full antialiased`}
+      className={`${sans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>

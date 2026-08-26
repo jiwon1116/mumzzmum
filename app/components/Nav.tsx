@@ -20,6 +20,10 @@ export default function Nav() {
   // Close the mobile menu whenever the route changes.
   useEffect(() => setOpen(false), [pathname]);
 
+  // Home (/) is the LGPSM landing — a standalone full-screen composition with
+  // its own header — so hide the global MUMZZMUM chrome there.
+  if (pathname === "/") return null;
+
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
 
