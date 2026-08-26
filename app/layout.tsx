@@ -5,10 +5,12 @@ import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import { AuthProvider } from "./components/AuthProvider";
 
-// Neutral geometric sans as the Eurostile substitute (Bécane system).
+// Munken Sans Web substitute — Inter across three weights (400/700/900),
+// per the Surface editorial system.
 const sans = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 

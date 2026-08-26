@@ -48,6 +48,27 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- Self-serve admin bootstrap. The FIRST signed-in user may claim admin with
+-- no SQL; once an admin exists it refuses, so it is safe to leave enabled.
+create or replace function public.claim_admin()
+returns text
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  if auth.uid() is null then
+    return 'not-authenticated';
+  end if;
+  if exists (select 1 from public.profiles where role = 'admin') then
+    return 'admin-exists';
+  end if;
+  update public.profiles set role = 'admin' where id = auth.uid();
+  return 'promoted';
+end;
+$$;
+
+grant execute on function public.claim_admin() to authenticated;
+
 -- SECURITY DEFINER so RLS policies can call it without recursing on profiles.
 create or replace function public.is_admin()
 returns boolean

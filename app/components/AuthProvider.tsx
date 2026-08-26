@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -16,6 +17,8 @@ type AuthState = {
   isAdmin: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
+  /** Re-read the current user + role from the DB (e.g. after claiming admin). */
+  refresh: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState>({
@@ -23,6 +26,7 @@ const AuthContext = createContext<AuthState>({
   isAdmin: false,
   loading: true,
   signOut: async () => {},
+  refresh: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -31,17 +35,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
-
-    let active = true;
-
-    async function resolveRole(nextUser: User | null) {
+  // Read the admin role straight from the DB (source of truth).
+  const resolveRole = useCallback(
+    async (nextUser: User | null) => {
       if (!nextUser || !supabase) {
-        if (active) setIsAdmin(false);
+        setIsAdmin(false);
         return;
       }
       const { data } = await supabase
@@ -49,8 +47,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .select("role")
         .eq("id", nextUser.id)
         .maybeSingle();
-      if (active) setIsAdmin(data?.role === "admin");
+      setIsAdmin(data?.role === "admin");
+    },
+    [supabase],
+  );
+
+  // Re-fetch user + role on demand (used after claiming admin).
+  const refresh = useCallback(async () => {
+    if (!supabase) return;
+    const {
+      data: { user: nextUser },
+    } = await supabase.auth.getUser();
+    setUser(nextUser);
+    await resolveRole(nextUser);
+  }, [supabase, resolveRole]);
+
+  useEffect(() => {
+    if (!supabase) {
+      setLoading(false);
+      return;
     }
+
+    let active = true;
 
     supabase.auth.getUser().then(async ({ data }) => {
       if (!active) return;
@@ -71,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       active = false;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, resolveRole]);
 
   const value = useMemo<AuthState>(
     () => ({
@@ -81,8 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut: async () => {
         await supabase?.auth.signOut();
       },
+      refresh,
     }),
-    [user, isAdmin, loading, supabase],
+    [user, isAdmin, loading, supabase, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
