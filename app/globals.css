@@ -1210,7 +1210,8 @@ main {
   top: 0;
   left: 0;
   z-index: 2;
-  width: clamp(120px, 15vw, 220px);
+  /* width is set per-tile in JS (varied sizes); this is just a fallback */
+  width: 160px;
   cursor: grab;
   opacity: 0;
   transition: opacity 0.5s ease;
@@ -1227,10 +1228,11 @@ main {
   cursor: grabbing;
 }
 
+/* natural aspect ratio — no crop, height follows the photo */
 .fg__tile img {
   width: 100%;
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
+  height: auto;
+  display: block;
   background: var(--bg);
   pointer-events: none;
   -webkit-user-drag: none;
@@ -1238,12 +1240,6 @@ main {
 
 .fg__tile:hover img {
   opacity: 0.88;
-}
-
-@media (max-width: 560px) {
-  .fg__tile {
-    width: clamp(104px, 30vw, 150px);
-  }
 }
 
 /* --- bottom strip: sparse colophon, no chrome --- */

@@ -35,6 +35,9 @@ export default function FloatingGallery({
   const containerRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const tiles = useRef<Tile[]>([]);
+  // Per-tile size factor in [0,1], fixed once, so each photo gets its own
+  // scale (some small, some large) that stays consistent across re-layouts.
+  const factors = useRef<number[]>([]);
   const drag = useRef<{
     i: number;
     offX: number;
@@ -54,14 +57,26 @@ export default function FloatingGallery({
       if (node && t) node.style.transform = `translate3d(${t.x}px, ${t.y}px, 0)`;
     };
 
-    // Scatter tiles across the container with a small random drift direction.
+    // Assign each tile a random width once (kept as a factor so it rescales
+    // proportionally on resize instead of reshuffling).
+    if (factors.current.length !== items.length) {
+      factors.current = items.map(() => Math.random());
+    }
+
+    // Scatter tiles across the container; each gets a varied width and keeps
+    // the photo's natural aspect ratio (height follows once the image loads).
     const layout = () => {
       const W = container.clientWidth;
       const H = container.clientHeight;
+      const baseW = Math.max(76, Math.min(180, W * 0.16));
+      const minW = baseW * 0.55; // smallest tile = 55% of base
+      const maxW = baseW * 0.75; // largest tile = 75% of base
       tiles.current = items.map((_, i) => {
         const node = nodeRefs.current[i];
-        const w = node?.offsetWidth ?? 200;
-        const h = node?.offsetHeight ?? 260;
+        const tileW = Math.round(minW + factors.current[i] * (maxW - minW));
+        if (node) node.style.width = `${tileW}px`;
+        const w = node?.offsetWidth || tileW;
+        const h = node?.offsetHeight || Math.round(tileW * 1.3);
         const angle = (i / items.length) * Math.PI * 2 + Math.random();
         return {
           x: Math.random() * Math.max(1, W - w),
@@ -138,6 +153,19 @@ export default function FloatingGallery({
       ro.disconnect();
     };
   }, [items]);
+
+  // Once a photo loads, its natural height is known — sync the physics box
+  // to the real size and pull it back inside the frame if it now overflows.
+  const onImgLoad = (i: number) => {
+    const node = nodeRefs.current[i];
+    const t = tiles.current[i];
+    const container = containerRef.current;
+    if (!node || !t || !container) return;
+    t.w = node.offsetWidth;
+    t.h = node.offsetHeight;
+    t.x = Math.max(0, Math.min(t.x, container.clientWidth - t.w));
+    t.y = Math.max(0, Math.min(t.y, container.clientHeight - t.h));
+  };
 
   const onPointerDown = (e: React.PointerEvent<HTMLAnchorElement>, i: number) => {
     const container = containerRef.current;
@@ -235,7 +263,12 @@ export default function FloatingGallery({
           onPointerCancel={(e) => endDrag(e, i, `/inspiration/${item.id}`)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.src} alt={item.title} draggable={false} />
+          <img
+            src={item.src}
+            alt={item.title}
+            draggable={false}
+            onLoad={() => onImgLoad(i)}
+          />
         </a>
       ))}
     </div>
