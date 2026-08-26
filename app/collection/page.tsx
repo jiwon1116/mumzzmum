@@ -17,7 +17,6 @@ export default async function CollectionPage() {
           브랜드를 하나씩 뜯어보는 아카이브. 무엇이 잘 되는지, 무엇을 가져오고
           무엇을 다르게 할지 기록합니다.
         </p>
-        <p className="page__count">{brands.length} Brands</p>
       </header>
 
       <AdminBar>

@@ -3,11 +3,13 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Media from "./Media";
+import ViewToggle, { type View } from "./ViewToggle";
 import type { Brand } from "@/shared/types";
 
 export default function CollectionBrowser({ brands }: { brands: Brand[] }) {
   const [query, setQuery] = useState("");
   const [character, setCharacter] = useState<string | null>(null);
+  const [view, setView] = useState<View>("gallery");
 
   // Unique character tags across all brands, for the filter chips.
   const characters = useMemo(() => {
@@ -32,6 +34,11 @@ export default function CollectionBrowser({ brands }: { brands: Brand[] }) {
 
   return (
     <>
+      <div className="toolbar">
+        <span className="toolbar__label">{filtered.length} Brands</span>
+        <ViewToggle view={view} onChange={setView} />
+      </div>
+
       <div className="filter">
         <input
           type="search"
@@ -65,7 +72,7 @@ export default function CollectionBrowser({ brands }: { brands: Brand[] }) {
 
       {filtered.length === 0 ? (
         <div className="empty">조건에 맞는 브랜드가 없습니다.</div>
-      ) : (
+      ) : view === "gallery" ? (
         <div className="grid-collection">
           {filtered.map((brand) => (
             <Link
@@ -87,6 +94,19 @@ export default function CollectionBrowser({ brands }: { brands: Brand[] }) {
             </Link>
           ))}
         </div>
+      ) : (
+        <ul className="list">
+          {filtered.map((brand) => (
+            <li key={brand.id}>
+              <Link href={`/collection/${brand.slug}`}>
+                <span className="list__title">{brand.name}</span>
+                <span className="list__meta">
+                  {[brand.mood, brand.price_range].filter(Boolean).join(" · ")}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       )}
     </>
   );
