@@ -1,69 +1,126 @@
-import Image from "next/image";
+import Link from "next/link";
+import Media from "./components/Media";
+import { getBrands, getInspiration, getExhibition } from "@/shared/data";
 
-export default function Home() {
+export default async function Home() {
+  const [brands, inspiration, exhibition] = await Promise.all([
+    getBrands(),
+    getInspiration(),
+    getExhibition(),
+  ]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <section className="hero">
+        <p className="eyebrow">A Personal Fashion Archive</p>
+        <h1 className="hero__mark">MUMZZMUM</h1>
+        <p className="hero__tagline">
+          An archive of brands, objects, images and ideas that shape my
+          perspective on fashion — the groundwork for a brand of my own.
+        </p>
+
+        <div className="hero__enter">
+          <Link href="/collection">Collection</Link>
+          <Link href="/inspiration">Inspiration</Link>
+          <Link href="/exhibition">Exhibition</Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+        <div className="hero__rule" />
+      </section>
+
+      <div className="container">
+        {/* Collection preview */}
+        <section className="home-section">
+          <div className="home-section__head">
+            <h2 className="home-section__title">Collection</h2>
+            <Link href="/collection" className="home-section__more">
+              View all — {brands.length}
+            </Link>
+          </div>
+          <div className="grid-collection">
+            {brands.slice(0, 4).map((brand) => (
+              <Link
+                key={brand.id}
+                href={`/collection/${brand.slug}`}
+                className="brand-card"
+              >
+                <Media
+                  src={brand.image_url}
+                  alt={brand.name}
+                  label={brand.name}
+                  className="brand-card__media"
+                  sizes="(max-width: 640px) 50vw, 25vw"
+                />
+                <div className="brand-card__name">{brand.name}</div>
+                <div className="brand-card__meta">
+                  {brand.mood && <span>{brand.mood.split("·")[0].trim()}</span>}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Inspiration preview */}
+        <section className="home-section">
+          <div className="home-section__head">
+            <h2 className="home-section__title">Inspiration</h2>
+            <Link href="/inspiration" className="home-section__more">
+              View all — {inspiration.length}
+            </Link>
+          </div>
+          <div className="grid-insta">
+            {inspiration.slice(0, 3).map((item) => (
+              <Link
+                key={item.id}
+                href={`/inspiration/${item.id}`}
+                className="insta-cell"
+              >
+                <Media
+                  src={item.image_url}
+                  alt={item.title ?? item.note}
+                  label="Inspiration"
+                  sizes="(max-width: 640px) 50vw, 33vw"
+                />
+                <div className="insta-cell__overlay">
+                  <span className="insta-cell__title">
+                    {item.title ?? "Untitled"}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Exhibition preview */}
+        <section className="home-section">
+          <div className="home-section__head">
+            <h2 className="home-section__title">Exhibition</h2>
+            <Link href="/exhibition" className="home-section__more">
+              View all — {exhibition.length}
+            </Link>
+          </div>
+          <div className="grid-insta">
+            {exhibition.slice(0, 3).map((piece) => (
+              <Link
+                key={piece.id}
+                href={`/exhibition/${piece.id}`}
+                className="insta-cell"
+              >
+                <Media
+                  src={piece.image_urls?.[0]}
+                  alt={piece.title}
+                  label={piece.title}
+                  sizes="(max-width: 640px) 50vw, 33vw"
+                />
+                <div className="insta-cell__overlay">
+                  <span className="insta-cell__title">{piece.title}</span>
+                  <span className="insta-cell__kind">{piece.category}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
+    </>
   );
 }
