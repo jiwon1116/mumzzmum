@@ -1,8 +1,14 @@
 "use client";
 
-export type View = "gallery" | "list";
+export type View = "walk" | "grid" | "list";
 
-/** Gallery (photos) ↔ List (text-only) switch, shared by the archive pages. */
+const LABELS: [View, string][] = [
+  ["walk", "감상"],
+  ["grid", "그리드"],
+  ["list", "목록"],
+];
+
+/** Walk (immersive) · Grid (overview) · List (text) switch for archive pages. */
 export default function ViewToggle({
   view,
   onChange,
@@ -12,22 +18,17 @@ export default function ViewToggle({
 }) {
   return (
     <div className="viewtoggle" role="group" aria-label="보기 방식">
-      <button
-        type="button"
-        className={`viewtoggle__btn${view === "gallery" ? " is-active" : ""}`}
-        aria-pressed={view === "gallery"}
-        onClick={() => onChange("gallery")}
-      >
-        갤러리
-      </button>
-      <button
-        type="button"
-        className={`viewtoggle__btn${view === "list" ? " is-active" : ""}`}
-        aria-pressed={view === "list"}
-        onClick={() => onChange("list")}
-      >
-        목록
-      </button>
+      {LABELS.map(([v, label]) => (
+        <button
+          key={v}
+          type="button"
+          className={`viewtoggle__btn${view === v ? " is-active" : ""}`}
+          aria-pressed={view === v}
+          onClick={() => onChange(v)}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }

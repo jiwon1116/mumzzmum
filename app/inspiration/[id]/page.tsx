@@ -34,14 +34,20 @@ export default async function InspirationDetailPage({
       </AdminBar>
 
       <div className="insp-detail">
-        <Media
-          src={item.image_url}
-          alt={item.title ?? item.note}
-          label="Inspiration"
-          className="detail__media"
-          sizes="(max-width: 860px) 100vw, 60vw"
-          priority
-        />
+        {item.image_url ? (
+          <div className="insp-detail__media">
+            {/* original aspect ratio — no crop */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={item.image_url} alt={item.title ?? item.note} />
+          </div>
+        ) : (
+          <Media
+            src={null}
+            alt={item.title ?? item.note}
+            label="Inspiration"
+            className="detail__media"
+          />
+        )}
 
         <div>
           {item.title && <h1 className="insp-detail__title">{item.title}</h1>}

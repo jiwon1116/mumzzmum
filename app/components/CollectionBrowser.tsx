@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Media from "./Media";
 import Filmstrip from "./Filmstrip";
 import ViewToggle, { type View } from "./ViewToggle";
 import type { Brand } from "@/shared/types";
@@ -9,7 +10,7 @@ import type { Brand } from "@/shared/types";
 export default function CollectionBrowser({ brands }: { brands: Brand[] }) {
   const [query, setQuery] = useState("");
   const [character, setCharacter] = useState<string | null>(null);
-  const [view, setView] = useState<View>("gallery");
+  const [view, setView] = useState<View>(brands.length > 10 ? "grid" : "walk");
 
   // Unique character tags across all brands, for the filter chips.
   const characters = useMemo(() => {
@@ -72,7 +73,7 @@ export default function CollectionBrowser({ brands }: { brands: Brand[] }) {
 
       {filtered.length === 0 ? (
         <div className="empty">조건에 맞는 브랜드가 없습니다.</div>
-      ) : view === "gallery" ? (
+      ) : view === "walk" ? (
         <Filmstrip
           shots={filtered.map((brand) => ({
             id: brand.id,
@@ -81,6 +82,28 @@ export default function CollectionBrowser({ brands }: { brands: Brand[] }) {
             href: `/collection/${brand.slug}`,
           }))}
         />
+      ) : view === "grid" ? (
+        <div className="grid-collection">
+          {filtered.map((brand) => (
+            <Link
+              key={brand.id}
+              href={`/collection/${brand.slug}`}
+              className="brand-card"
+            >
+              <Media
+                src={brand.image_url}
+                alt={brand.name}
+                label={brand.name}
+                className="brand-card__media"
+                sizes="(max-width: 640px) 50vw, (max-width: 1080px) 33vw, 25vw"
+              />
+              <div className="brand-card__name">{brand.name}</div>
+              <div className="brand-card__meta">
+                {brand.price_range && <span>{brand.price_range}</span>}
+              </div>
+            </Link>
+          ))}
+        </div>
       ) : (
         <ul className="list">
           {filtered.map((brand) => (
