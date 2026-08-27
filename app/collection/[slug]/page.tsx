@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Media from "../../components/Media";
-import BrandDetails from "../../components/BrandDetails";
 import { AdminBar, AdminOnly } from "../../components/admin/AdminOnly";
 import BrandForm from "../../components/admin/BrandForm";
 import ProductForm from "../../components/admin/ProductForm";
@@ -16,11 +15,15 @@ export default async function BrandDetailPage({
 
   if (!brand) notFound();
 
-  const quickFacts: { label: string; value: string | null }[] = [
+  const facts: { label: string; value: string | null }[] = [
     { label: "Target", value: brand.target },
-    { label: "Price Range", value: brand.price_range },
+    { label: "Price", value: brand.price_range },
     { label: "Mood", value: brand.mood },
-  ];
+  ].filter((f) => f.value);
+
+  const sub = [brand.country, brand.founded ? `Est. ${brand.founded}` : null]
+    .filter(Boolean)
+    .join("  ·  ");
 
   return (
     <div className="container page">
@@ -33,37 +36,26 @@ export default async function BrandDetailPage({
         <DeleteButton kind="brand" id={brand.id} redirectTo="/collection" />
       </AdminBar>
 
-      <div className="detail">
-        <Media
-          src={brand.image_url}
-          alt={brand.name}
-          label={brand.name}
-          className="detail__media"
-          sizes="(max-width: 860px) 100vw, 45vw"
-          priority
-        />
+      <div className="detail-solo">
+        <header className="brandhead">
+          <p className="eyebrow">Brand</p>
+          <h1 className="brandhead__name">{brand.name}</h1>
+          {sub && <p className="brandhead__sub">{sub}</p>}
+        </header>
+
+        {facts.length > 0 && (
+          <div className="brandfacts">
+            {facts.map((f) => (
+              <div className="brandfacts__item" key={f.label}>
+                <span className="brandfacts__key">{f.label}</span>
+                <span className="brandfacts__val">{f.value}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div>
-          <h1 className="detail__name">{brand.name}</h1>
-
-          <dl className="dl">
-            {quickFacts.map(
-              (f) =>
-                f.value && (
-                  <div className="dl__row" key={f.label}>
-                    <dt className="dl__key">{f.label}</dt>
-                    <dd className="dl__val">{f.value}</dd>
-                  </div>
-                ),
-            )}
-          </dl>
-
-          {brand.description && (
-            <section className="section">
-              <p className="section__label">About the Brand</p>
-              <p className="prose">{brand.description}</p>
-            </section>
-          )}
+          {brand.description && <p className="brandlead">{brand.description}</p>}
 
           {brand.brand_character && brand.brand_character.length > 0 && (
             <section className="section">
@@ -78,7 +70,53 @@ export default async function BrandDetailPage({
             </section>
           )}
 
-          <BrandDetails brand={brand} />
+          {brand.what_i_like && (
+            <section className="section">
+              <p className="section__label">What I Like</p>
+              <p className="prose">{brand.what_i_like}</p>
+            </section>
+          )}
+
+          {(brand.signature || brand.core_products) && (
+            <section className="section section-split">
+              {brand.signature && (
+                <div>
+                  <p className="section__label">Signature</p>
+                  <p className="prose">{brand.signature}</p>
+                </div>
+              )}
+              {brand.core_products && (
+                <div>
+                  <p className="section__label">Core Products</p>
+                  <p className="prose">{brand.core_products}</p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {(brand.materials || brand.color_palette) && (
+            <section className="section section-split">
+              {brand.materials && (
+                <div>
+                  <p className="section__label">Materials</p>
+                  <p className="prose">{brand.materials}</p>
+                </div>
+              )}
+              {brand.color_palette && (
+                <div>
+                  <p className="section__label">Color Palette</p>
+                  <p className="prose">{brand.color_palette}</p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {brand.sns_content && (
+            <section className="section">
+              <p className="section__label">SNS / Content</p>
+              <p className="prose">{brand.sns_content}</p>
+            </section>
+          )}
         </div>
       </div>
 

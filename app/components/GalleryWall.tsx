@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export type Piece = {
   id: string;
@@ -17,9 +18,12 @@ export type Piece = {
  * the rest dim back — as if you're walking the gallery. Drag or swipe to move.
  */
 export default function GalleryWall({ pieces }: { pieces: Piece[] }) {
+  const router = useRouter();
   const scroller = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLElement | null)[]>([]);
   const drag = useRef({ down: false, startX: 0, scroll: 0, moved: 0 });
+  const pressedHref = useRef<string | null>(null);
+  const lastType = useRef<string>("");
   const raf = useRef(0);
   const update = useRef<() => void>(() => {});
 
@@ -61,6 +65,9 @@ export default function GalleryWall({ pieces }: { pieces: Piece[] }) {
   const onImgLoad = () => update.current();
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    lastType.current = e.pointerType;
+    const a = (e.target as HTMLElement).closest("a");
+    pressedHref.current = a?.getAttribute("href") ?? null;
     if (e.pointerType !== "mouse") return;
     const el = scroller.current;
     if (!el) return;
@@ -83,7 +90,11 @@ export default function GalleryWall({ pieces }: { pieces: Piece[] }) {
   };
 
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === "mouse") drag.current.down = false;
+    if (e.pointerType !== "mouse" || !drag.current.down) return;
+    drag.current.down = false;
+    if (drag.current.moved <= 6 && pressedHref.current) {
+      router.push(pressedHref.current);
+    }
   };
 
   return (
@@ -109,7 +120,7 @@ export default function GalleryWall({ pieces }: { pieces: Piece[] }) {
             title={p.title}
             draggable={false}
             onClick={(e) => {
-              if (drag.current.moved > 6) e.preventDefault();
+              if (lastType.current === "mouse") e.preventDefault();
             }}
           >
             {p.src ? (

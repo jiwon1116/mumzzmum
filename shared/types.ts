@@ -15,7 +15,8 @@ export type Brand = {
   id: string;
   slug: string;
   name: string;
-  image_url: string | null; // main image / logo
+  country: string | null; // country of origin
+  founded: string | null; // founding year / date
   target: string | null;
   price_range: string | null;
   mood: string | null;
