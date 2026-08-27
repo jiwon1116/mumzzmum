@@ -144,9 +144,10 @@ export default function ImageUploader({
         </div>
       )}
 
-      <div
+      {/* A real <label> around the input — reliably opens the picker AND fires
+          change on iOS Safari (a programmatically-clicked hidden input does not). */}
+      <label
         className="uploader__drop"
-        onClick={() => inputRef.current?.click()}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
@@ -156,18 +157,17 @@ export default function ImageUploader({
         {busy
           ? "Uploading…"
           : multiple
-            ? "Click or drop images to upload"
-            : "Click or drop an image to upload"}
-      </div>
-
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        multiple={multiple}
-        hidden
-        onChange={(e) => handleFiles(e.target.files)}
-      />
+            ? "탭해서 사진 선택 (여러 장 가능)"
+            : "탭해서 사진 선택"}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          multiple={multiple}
+          className="uploader__input"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
+      </label>
 
       {error && <p className="login__error">{error}</p>}
     </div>

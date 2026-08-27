@@ -1697,6 +1697,7 @@ main {
 }
 
 .uploader__drop {
+  display: block;
   border: 1px dashed var(--hair);
   padding: 24px;
   text-align: center;
@@ -1705,6 +1706,20 @@ main {
   opacity: 0.7;
   cursor: pointer;
   transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+/* visually hidden but PRESENT (not display:none) so iOS fires `change` */
+.uploader__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
 }
 
 .uploader__drop:hover {
