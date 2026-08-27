@@ -6,11 +6,6 @@ import Filmstrip from "./Filmstrip";
 import ViewToggle, { type View } from "./ViewToggle";
 import type { Inspiration } from "@/shared/types";
 
-function fmtDate(iso?: string) {
-  if (!iso) return "";
-  return new Date(iso).toLocaleDateString("en-CA"); // YYYY-MM-DD
-}
-
 export default function InspirationBrowser({
   items,
 }: {
@@ -47,7 +42,7 @@ export default function InspirationBrowser({
     <>
       <div className="toolbar">
         <span className="toolbar__label">{filtered.length} Notes</span>
-        <ViewToggle view={view} onChange={setView} />
+        <ViewToggle view={view} onChange={setView} views={["walk", "grid"]} />
       </div>
 
       <div className="filter">
@@ -92,7 +87,7 @@ export default function InspirationBrowser({
             href: `/inspiration/${item.id}`,
           }))}
         />
-      ) : view === "grid" ? (
+      ) : (
         <div className="masonry">
           {filtered.map((item) => (
             <Link
@@ -114,17 +109,6 @@ export default function InspirationBrowser({
             </Link>
           ))}
         </div>
-      ) : (
-        <ul className="list">
-          {filtered.map((item) => (
-            <li key={item.id}>
-              <Link href={`/inspiration/${item.id}`}>
-                <span className="list__title">{item.note || "—"}</span>
-                <span className="list__meta">{fmtDate(item.created_at)}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
       )}
     </>
   );

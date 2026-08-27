@@ -8,17 +8,21 @@ const LABELS: [View, string][] = [
   ["list", "목록"],
 ];
 
-/** Walk (immersive) · Grid (overview) · List (text) switch for archive pages. */
+/** Walk (immersive) · Grid (overview) · List (text) switch for archive pages.
+    Pass `views` to show only a subset. */
 export default function ViewToggle({
   view,
   onChange,
+  views,
 }: {
   view: View;
   onChange: (v: View) => void;
+  views?: View[];
 }) {
+  const shown = views ? LABELS.filter(([v]) => views.includes(v)) : LABELS;
   return (
     <div className="viewtoggle" role="group" aria-label="보기 방식">
-      {LABELS.map(([v, label]) => (
+      {shown.map(([v, label]) => (
         <button
           key={v}
           type="button"

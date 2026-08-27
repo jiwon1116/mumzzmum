@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Media from "../../components/Media";
+import Accordion from "../../components/Accordion";
 import { AdminBar, AdminOnly } from "../../components/admin/AdminOnly";
 import BrandForm from "../../components/admin/BrandForm";
 import ProductForm from "../../components/admin/ProductForm";
@@ -58,10 +59,9 @@ export default async function BrandDetailPage({
 
         <div className="branddetail__body">
           {brand.description && (
-            <section className="section">
-              <p className="section__label">About the Brand</p>
+            <Accordion title="About the Brand" defaultOpen>
               <p className="prose">{brand.description}</p>
-            </section>
+            </Accordion>
           )}
 
           {brand.brand_character && brand.brand_character.length > 0 && (
@@ -78,10 +78,9 @@ export default async function BrandDetailPage({
           )}
 
           {brand.what_i_like && (
-            <section className="section">
-              <p className="section__label">What I Like</p>
+            <Accordion title="What I Like">
               <p className="prose">{brand.what_i_like}</p>
-            </section>
+            </Accordion>
           )}
 
           {(brand.signature || brand.core_products) && (

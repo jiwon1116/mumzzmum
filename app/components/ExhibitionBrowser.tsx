@@ -114,21 +114,6 @@ export default function ExhibitionBrowser({
     </div>
   );
 
-  const listRows = (items: ExhibitionPiece[]) => (
-    <ul className="list">
-      {items.map((piece) => (
-        <li key={piece.id}>
-          <Link href={`/exhibition/${piece.id}`}>
-            <span className="list__title">{piece.title}</span>
-            <span className="list__meta">
-              {[piece.category, piece.date].filter(Boolean).join(" · ")}
-            </span>
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-
   const grouped = (render: (items: ExhibitionPiece[]) => ReactNode) =>
     // when a single season is selected there's no need for headers
     season
@@ -147,7 +132,7 @@ export default function ExhibitionBrowser({
     <>
       <div className="toolbar">
         <span className="toolbar__label">{filtered.length} Pieces</span>
-        <ViewToggle view={view} onChange={setView} />
+        <ViewToggle view={view} onChange={setView} views={["walk", "grid"]} />
       </div>
 
       <div className="filter">
@@ -218,10 +203,8 @@ export default function ExhibitionBrowser({
             meta: meta(piece),
           }))}
         />
-      ) : view === "grid" ? (
-        grouped(gridCells)
       ) : (
-        grouped(listRows)
+        grouped(gridCells)
       )}
     </>
   );

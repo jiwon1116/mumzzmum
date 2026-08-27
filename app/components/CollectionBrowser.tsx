@@ -16,16 +16,18 @@ export default function CollectionBrowser({ brands }: { brands: Brand[] }) {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return brands.filter((b) => {
-      const matchesQuery =
-        !q ||
-        b.name.toLowerCase().includes(q) ||
-        (b.mood ?? "").toLowerCase().includes(q) ||
-        (b.brand_character ?? []).some((c) => c.toLowerCase().includes(q));
-      const matchesCharacter =
-        !character || (b.brand_character ?? []).includes(character);
-      return matchesQuery && matchesCharacter;
-    });
+    return brands
+      .filter((b) => {
+        const matchesQuery =
+          !q ||
+          b.name.toLowerCase().includes(q) ||
+          (b.mood ?? "").toLowerCase().includes(q) ||
+          (b.brand_character ?? []).some((c) => c.toLowerCase().includes(q));
+        const matchesCharacter =
+          !character || (b.brand_character ?? []).includes(character);
+        return matchesQuery && matchesCharacter;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, "ko"));
   }, [brands, query, character]);
 
   return (
