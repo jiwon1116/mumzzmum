@@ -6,6 +6,11 @@ import Filmstrip from "./Filmstrip";
 import ViewToggle, { type View } from "./ViewToggle";
 import type { Inspiration } from "@/shared/types";
 
+function fmtDate(iso?: string) {
+  if (!iso) return "";
+  return new Date(iso).toLocaleDateString("en-CA"); // YYYY-MM-DD
+}
+
 export default function InspirationBrowser({
   items,
 }: {
@@ -82,7 +87,7 @@ export default function InspirationBrowser({
         <Filmstrip
           shots={filtered.map((item) => ({
             id: item.id,
-            title: item.title ?? item.note ?? "Inspiration",
+            title: item.note || "Inspiration",
             src: item.image_url,
             href: `/inspiration/${item.id}`,
           }))}
@@ -100,19 +105,11 @@ export default function InspirationBrowser({
                 <img
                   className="insp-card__img"
                   src={item.image_url}
-                  alt={item.title ?? item.note}
+                  alt={item.note || "Inspiration"}
                   loading="lazy"
                 />
               ) : (
                 <div className="insp-card__ph">Inspiration</div>
-              )}
-              <div className="insp-card__note">
-                {item.title ?? item.note}
-              </div>
-              {item.tags && item.tags.length > 0 && (
-                <div className="insp-card__tags">
-                  {item.tags.map((t) => `#${t}`).join("  ")}
-                </div>
               )}
             </Link>
           ))}
@@ -122,14 +119,8 @@ export default function InspirationBrowser({
           {filtered.map((item) => (
             <li key={item.id}>
               <Link href={`/inspiration/${item.id}`}>
-                <span className="list__title">
-                  {item.title ?? item.note}
-                </span>
-                <span className="list__meta">
-                  {item.tags && item.tags.length > 0
-                    ? item.tags.map((t) => `#${t}`).join(" ")
-                    : item.category}
-                </span>
+                <span className="list__title">{item.note || "—"}</span>
+                <span className="list__meta">{fmtDate(item.created_at)}</span>
               </Link>
             </li>
           ))}

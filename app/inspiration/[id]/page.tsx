@@ -50,9 +50,15 @@ export default async function InspirationDetailPage({
         )}
 
         <div>
-          {item.title && <h1 className="insp-detail__title">{item.title}</h1>}
+          {item.note && <p className="insp-detail__note">{item.note}</p>}
 
           <dl className="dl">
+            {created && (
+              <div className="dl__row">
+                <dt className="dl__key">작성일</dt>
+                <dd className="dl__val">{created}</dd>
+              </div>
+            )}
             {item.category && (
               <div className="dl__row">
                 <dt className="dl__key">Category</dt>
@@ -65,20 +71,7 @@ export default async function InspirationDetailPage({
                 <dd className="dl__val">{item.source}</dd>
               </div>
             )}
-            {created && (
-              <div className="dl__row">
-                <dt className="dl__key">Saved</dt>
-                <dd className="dl__val">{created}</dd>
-              </div>
-            )}
           </dl>
-
-          {item.note && (
-            <section className="section">
-              <p className="section__label">Note</p>
-              <p className="prose">{item.note}</p>
-            </section>
-          )}
 
           {item.tags && item.tags.length > 0 && (
             <section className="section">

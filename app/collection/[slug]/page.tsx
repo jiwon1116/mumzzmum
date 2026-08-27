@@ -57,7 +57,12 @@ export default async function BrandDetailPage({
         </aside>
 
         <div className="branddetail__body">
-          {brand.description && <p className="brandlead">{brand.description}</p>}
+          {brand.description && (
+            <section className="section">
+              <p className="section__label">About the Brand</p>
+              <p className="prose">{brand.description}</p>
+            </section>
+          )}
 
           {brand.brand_character && brand.brand_character.length > 0 && (
             <section className="section">

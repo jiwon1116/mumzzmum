@@ -707,6 +707,7 @@ main {
 
 .section__label {
   font-size: var(--text-body-sm);
+  font-weight: 700;
   color: var(--ink);
   margin-bottom: 20px;
 }
@@ -840,6 +841,15 @@ main {
   font-weight: 700;
   line-height: 1;
   margin: 0 0 24px;
+}
+
+/* note is the lead of an inspiration — preserve its line breaks */
+.insp-detail__note {
+  font-size: clamp(17px, 2vw, 21px);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  margin: 0 0 clamp(24px, 4vw, 40px);
+  max-width: 60ch;
 }
 
 .exh-detail__title {

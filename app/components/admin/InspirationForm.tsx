@@ -7,12 +7,11 @@ import ImageUploader from "./ImageUploader";
 import { createInspiration, updateInspiration } from "@/server/actions";
 import type { Inspiration } from "@/shared/types";
 
-const empty = { title: "", category: "", source: "", note: "", tags: "" };
+const empty = { category: "", source: "", note: "", tags: "" };
 
 function toForm(i?: Inspiration) {
   if (!i) return { ...empty };
   return {
-    title: i.title ?? "",
     category: i.category ?? "",
     source: i.source ?? "",
     note: i.note ?? "",
@@ -38,7 +37,7 @@ export default function InspirationForm({ item }: { item?: Inspiration }) {
   function submit() {
     setError(null);
     const payload = {
-      title: form.title || null,
+      title: null,
       category: form.category || null,
       source: form.source || null,
       note: form.note,
@@ -82,11 +81,6 @@ export default function InspirationForm({ item }: { item?: Inspiration }) {
             onChange={setImages}
             folder="inspiration"
           />
-        </label>
-
-        <label className="field">
-          <span className="field__label">Title</span>
-          <input className="field__input" value={form.title} onChange={set("title")} />
         </label>
 
         <div className="field-row">
