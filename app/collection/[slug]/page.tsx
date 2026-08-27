@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Media from "../../components/Media";
+import BrandDetails from "../../components/BrandDetails";
 import { AdminBar, AdminOnly } from "../../components/admin/AdminOnly";
 import BrandForm from "../../components/admin/BrandForm";
 import ProductForm from "../../components/admin/ProductForm";
@@ -33,16 +34,14 @@ export default async function BrandDetailPage({
       </AdminBar>
 
       <div className="detail">
-        <div className="detail__media">
-          <Media
-            src={brand.image_url}
-            alt={brand.name}
-            label={brand.name}
-            className="detail__media"
-            sizes="(max-width: 860px) 100vw, 45vw"
-            priority
-          />
-        </div>
+        <Media
+          src={brand.image_url}
+          alt={brand.name}
+          label={brand.name}
+          className="detail__media"
+          sizes="(max-width: 860px) 100vw, 45vw"
+          priority
+        />
 
         <div>
           <h1 className="detail__name">{brand.name}</h1>
@@ -79,63 +78,7 @@ export default async function BrandDetailPage({
             </section>
           )}
 
-          {(brand.signature || brand.core_products) && (
-            <section className="section section-split">
-              {brand.signature && (
-                <div>
-                  <p className="section__label">Signature</p>
-                  <p className="prose">{brand.signature}</p>
-                </div>
-              )}
-              {brand.core_products && (
-                <div>
-                  <p className="section__label">Core Products</p>
-                  <p className="prose">{brand.core_products}</p>
-                </div>
-              )}
-            </section>
-          )}
-
-          {(brand.materials || brand.color_palette) && (
-            <section className="section section-split">
-              {brand.materials && (
-                <div>
-                  <p className="section__label">Materials</p>
-                  <p className="prose">{brand.materials}</p>
-                </div>
-              )}
-              {brand.color_palette && (
-                <div>
-                  <p className="section__label">Color Palette</p>
-                  <p className="prose">{brand.color_palette}</p>
-                </div>
-              )}
-            </section>
-          )}
-
-          {brand.sns_content && (
-            <section className="section">
-              <p className="section__label">SNS / Content</p>
-              <p className="prose">{brand.sns_content}</p>
-            </section>
-          )}
-
-          {(brand.what_i_like || brand.what_i_would_change) && (
-            <section className="section section-split">
-              {brand.what_i_like && (
-                <div>
-                  <p className="section__label">What I Like</p>
-                  <p className="prose">{brand.what_i_like}</p>
-                </div>
-              )}
-              {brand.what_i_would_change && (
-                <div>
-                  <p className="section__label">What I Would Change</p>
-                  <p className="prose">{brand.what_i_would_change}</p>
-                </div>
-              )}
-            </section>
-          )}
+          <BrandDetails brand={brand} />
         </div>
       </div>
 

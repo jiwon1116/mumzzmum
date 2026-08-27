@@ -489,6 +489,49 @@ main {
   top: calc(var(--nav-h) + 24px);
 }
 
+/* on mobile the image shouldn't trail the content as you scroll */
+@media (max-width: 860px) {
+  .detail__media {
+    position: static;
+  }
+}
+
+/* ---------- accordion (collapsible detail) ---------- */
+.accordion {
+  margin-top: clamp(32px, 4vw, 48px);
+  border-top: 1px solid var(--hair);
+}
+
+.accordion__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-munken);
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--ink);
+  text-align: left;
+}
+
+.accordion__chev {
+  font-size: var(--text-body-sm);
+  opacity: 0.6;
+}
+
+.accordion__body {
+  padding-bottom: 8px;
+}
+
+.accordion__body .section:first-child {
+  margin-top: 0;
+}
+
 .detail__name {
   font-size: clamp(25px, 4vw, 40px);
   font-weight: 700;
