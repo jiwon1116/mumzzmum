@@ -48,7 +48,7 @@ export default function ArchiveLanding({
       {/* Hero — the 230px word with Inspiration photos floating over it.
           Drag to pull a photo around; click one to open its page. */}
       {floatItems.length > 0 ? (
-        <FloatingGallery items={floatItems} word="Archive" />
+        <FloatingGallery items={floatItems} />
       ) : (
         <section className="sf-hero">
           <p className="sf-hero__meta">

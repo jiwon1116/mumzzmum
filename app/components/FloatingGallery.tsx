@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { TextMorph } from "./TextMorph";
 
 export type FloatItem = { id: string; title: string; src: string };
 
@@ -26,10 +27,8 @@ const CLICK_SLOP = 6; // px of movement below which a press counts as a click
  */
 export default function FloatingGallery({
   items,
-  word,
 }: {
   items: FloatItem[];
-  word: string;
 }) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -242,9 +241,12 @@ export default function FloatingGallery({
 
   return (
     <div ref={containerRef} className="fg">
-      <h1 className="fg__word" aria-hidden>
-        {word}
-      </h1>
+      <TextMorph
+        className="fg__word"
+        words={["OBSESSION", "INSTINCT", "TASTE", "ARCHIVE"]}
+        interval={2400}
+        morphDuration={680}
+      />
 
       {items.map((item, i) => (
         <a
