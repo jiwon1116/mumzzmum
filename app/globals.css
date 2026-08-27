@@ -489,66 +489,89 @@ main {
   top: calc(var(--nav-h) + 24px);
 }
 
-/* image-less brand detail — single readable column */
-.detail-solo {
-  max-width: 800px;
+/* image-less brand detail — meta sidebar + narrative column */
+.branddetail {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: start;
 }
 
-.brandhead {
-  margin-bottom: clamp(28px, 4vw, 44px);
+@media (max-width: 860px) {
+  .branddetail {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+.branddetail__meta {
+  position: sticky;
+  top: calc(var(--nav-h) + 24px);
+}
+
+@media (max-width: 860px) {
+  .branddetail__meta {
+    position: static;
+  }
 }
 
 .brandhead__name {
-  font-size: clamp(40px, 8vw, 92px);
+  font-size: clamp(28px, 3.4vw, 44px);
   font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  margin: 10px 0 0;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 8px 0 0;
 }
 
 .brandhead__sub {
-  margin-top: 18px;
-  font-size: var(--text-body);
+  margin-top: 12px;
+  font-size: var(--text-body-sm);
   color: var(--ink);
   opacity: 0.55;
 }
 
-/* spec strip in place of the hero image */
+/* spec sheet — vertical key/value list in the sidebar */
 .brandfacts {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: clamp(18px, 3vw, 40px);
-  padding: clamp(22px, 3vw, 30px) 0;
-  border-top: 1px solid var(--ink);
-  border-bottom: 1px solid var(--hair);
-  margin-bottom: clamp(32px, 4vw, 52px);
+  display: flex;
+  flex-direction: column;
+  margin-top: clamp(24px, 3vw, 32px);
+  border-top: 1px solid var(--hair);
 }
 
 .brandfacts__item {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hair);
 }
 
 .brandfacts__key {
   font-size: var(--text-body-sm);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   opacity: 0.45;
 }
 
 .brandfacts__val {
-  font-size: var(--text-body);
+  font-size: var(--text-body-sm);
   font-weight: 600;
-  line-height: 1.3;
+  text-align: right;
 }
 
-/* large lead paragraph */
+/* intro paragraph — calm, readable body size */
 .brandlead {
-  font-size: clamp(18px, 2.4vw, 24px);
-  line-height: 1.5;
-  max-width: 60ch;
-  margin: 0 0 clamp(36px, 5vw, 56px);
+  font-size: var(--text-body);
+  line-height: 1.7;
+  max-width: 62ch;
+  margin: 0 0 clamp(28px, 4vw, 44px);
+}
+
+/* first section in the narrative column shouldn't add extra top gap */
+.branddetail__body > .section:first-child,
+.branddetail__body > .brandlead:first-child {
+  margin-top: 0;
 }
 
 /* on mobile the image shouldn't trail the content as you scroll */

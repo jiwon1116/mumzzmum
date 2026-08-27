@@ -36,25 +36,27 @@ export default async function BrandDetailPage({
         <DeleteButton kind="brand" id={brand.id} redirectTo="/collection" />
       </AdminBar>
 
-      <div className="detail-solo">
-        <header className="brandhead">
-          <p className="eyebrow">Brand</p>
-          <h1 className="brandhead__name">{brand.name}</h1>
-          {sub && <p className="brandhead__sub">{sub}</p>}
-        </header>
+      <div className="branddetail">
+        <aside className="branddetail__meta">
+          <header className="brandhead">
+            <p className="eyebrow">Brand</p>
+            <h1 className="brandhead__name">{brand.name}</h1>
+            {sub && <p className="brandhead__sub">{sub}</p>}
+          </header>
 
-        {facts.length > 0 && (
-          <div className="brandfacts">
-            {facts.map((f) => (
-              <div className="brandfacts__item" key={f.label}>
-                <span className="brandfacts__key">{f.label}</span>
-                <span className="brandfacts__val">{f.value}</span>
-              </div>
-            ))}
-          </div>
-        )}
+          {facts.length > 0 && (
+            <div className="brandfacts">
+              {facts.map((f) => (
+                <div className="brandfacts__item" key={f.label}>
+                  <span className="brandfacts__key">{f.label}</span>
+                  <span className="brandfacts__val">{f.value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </aside>
 
-        <div>
+        <div className="branddetail__body">
           {brand.description && <p className="brandlead">{brand.description}</p>}
 
           {brand.brand_character && brand.brand_character.length > 0 && (
