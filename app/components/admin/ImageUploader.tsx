@@ -16,6 +16,35 @@ function uid() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+// iPhone photos are often HEIC/HEIF, which most browsers can't display. Convert
+// them to JPEG in the browser so they upload and render everywhere.
+async function toUploadable(
+  file: File,
+): Promise<{ blob: Blob; ext: string; type: string }> {
+  const isHeic =
+    /heic|heif/i.test(file.type) || /\.(heic|heif)$/i.test(file.name);
+  if (isHeic) {
+    try {
+      const heic2any = (await import("heic2any")).default as (opts: {
+        blob: Blob;
+        toType?: string;
+        quality?: number;
+      }) => Promise<Blob | Blob[]>;
+      const out = await heic2any({
+        blob: file,
+        toType: "image/jpeg",
+        quality: 0.9,
+      });
+      const blob = Array.isArray(out) ? out[0] : out;
+      return { blob, ext: "jpg", type: "image/jpeg" };
+    } catch {
+      /* conversion failed — fall back to uploading the original */
+    }
+  }
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  return { blob: file, ext, type: file.type || "image/jpeg" };
+}
+
 export default function ImageUploader({
   value,
   onChange,
@@ -30,6 +59,8 @@ export default function ImageUploader({
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // local object-URL previews shown instantly while the upload is in flight
+  const [previews, setPreviews] = useState<string[]>([]);
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -39,20 +70,23 @@ export default function ImageUploader({
       return;
     }
 
+    const list = Array.from(files);
+    const localUrls = list.map((f) => URL.createObjectURL(f));
+    setPreviews(localUrls);
     setBusy(true);
     setError(null);
-    const uploaded: string[] = [];
 
+    const uploaded: string[] = [];
     try {
-      for (const file of Array.from(files)) {
-        const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      for (const file of list) {
+        const { blob, ext, type } = await toUploadable(file);
         const path = `${folder}/${uid()}.${ext}`;
         const { error: upErr } = await supabase.storage
           .from("media")
-          .upload(path, file, {
+          .upload(path, blob, {
             cacheControl: "3600",
             upsert: false,
-            contentType: file.type || undefined,
+            contentType: type,
           });
         if (upErr) {
           setError(upErr.message);
@@ -69,8 +103,12 @@ export default function ImageUploader({
     }
 
     setBusy(false);
+    localUrls.forEach((u) => URL.revokeObjectURL(u));
+    setPreviews([]);
     if (uploaded.length) {
       onChange(multiple ? [...value, ...uploaded] : [uploaded[0]]);
+    } else if (!error) {
+      setError("사진을 업로드하지 못했습니다. 다시 시도해 주세요.");
     }
     if (inputRef.current) inputRef.current.value = "";
   }
@@ -81,7 +119,7 @@ export default function ImageUploader({
 
   return (
     <div className="uploader">
-      {value.length > 0 && (
+      {(value.length > 0 || previews.length > 0) && (
         <div className="uploader__grid">
           {value.map((url, i) => (
             <div className="uploader__item" key={url + i}>
@@ -95,6 +133,12 @@ export default function ImageUploader({
               >
                 ✕
               </button>
+            </div>
+          ))}
+          {previews.map((url, i) => (
+            <div className="uploader__item uploader__item--pending" key={"p" + i}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={url} alt="" />
             </div>
           ))}
         </div>
