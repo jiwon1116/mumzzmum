@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Media from "../../components/Media";
+import ProductsBrowser from "../../components/ProductsBrowser";
 import Accordion from "../../components/Accordion";
 import { AdminBar, AdminOnly } from "../../components/admin/AdminOnly";
 import BrandForm from "../../components/admin/BrandForm";
@@ -134,32 +134,7 @@ export default async function BrandDetailPage({
             <ProductForm brandId={brand.id} />
           </div>
         </AdminOnly>
-        {brand.products.length === 0 ? (
-          <div className="empty">아직 등록된 제품이 없습니다.</div>
-        ) : (
-          <div className="grid-products">
-            {brand.products.map((product) => (
-              <Link
-                key={product.id}
-                href={`/collection/${brand.slug}/${product.id}`}
-                className="product-card"
-              >
-                <Media
-                  src={product.image_urls?.[0]}
-                  alt={product.name}
-                  label={product.name}
-                  className="product-card__media"
-                  sizes="(max-width: 640px) 50vw, 25vw"
-                />
-                <div className="product-card__name">{product.name}</div>
-                <div className="product-card__meta">
-                  {product.price && <span>{product.price}</span>}
-                  {product.color && <span>{product.color}</span>}
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+        <ProductsBrowser products={brand.products} brandSlug={brand.slug} />
       </section>
     </div>
   );

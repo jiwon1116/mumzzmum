@@ -7,6 +7,72 @@ import ImageUploader from "./ImageUploader";
 import { createProduct, updateProduct } from "@/server/actions";
 import type { Product } from "@/shared/types";
 
+// Quick-pick presets (click to fill; typing custom still works).
+const CATEGORY_OPTS = ["Top", "Knit", "Outer", "Pants", "Dress", "Shoes", "Bag", "Accessory"];
+const MATERIAL_OPTS = ["Cotton", "Denim", "Leather", "Wool", "Cashmere", "Nylon", "Polyester", "Linen", "Silk", "Corduroy", "Suede", "Fleece"];
+const SILHOUETTE_OPTS = ["Oversized", "Regular", "Slim", "Wide", "Straight", "Cropped", "Relaxed", "A-line", "Tapered"];
+
+/** Single-value picker — clicking sets (or clears) the field. */
+function SingleChips({
+  value,
+  options,
+  onPick,
+}: {
+  value: string;
+  options: string[];
+  onPick: (v: string) => void;
+}) {
+  return (
+    <div className="presets">
+      {options.map((o) => (
+        <button
+          type="button"
+          key={o}
+          className={`chip${value === o ? " is-active" : ""}`}
+          onClick={() => onPick(value === o ? "" : o)}
+        >
+          {o}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Multi-value picker — clicking toggles the tag in a comma-joined string. */
+function MultiChips({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  const parts = value
+    ? value.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const toggle = (o: string) => {
+    const next = parts.includes(o)
+      ? parts.filter((p) => p !== o)
+      : [...parts, o];
+    onChange(next.join(", "));
+  };
+  return (
+    <div className="presets">
+      {options.map((o) => (
+        <button
+          type="button"
+          key={o}
+          className={`chip${parts.includes(o) ? " is-active" : ""}`}
+          onClick={() => toggle(o)}
+        >
+          {o}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 const empty = {
   name: "",
   price: "",
@@ -122,24 +188,38 @@ export default function ProductForm({
           <label className="field">
             <span className="field__label">Category</span>
             <input className="field__input" value={form.category} onChange={set("category")} />
+            <SingleChips
+              value={form.category}
+              options={CATEGORY_OPTS}
+              onPick={(v) => setForm((f) => ({ ...f, category: v }))}
+            />
           </label>
         </div>
+
+        <label className="field">
+          <span className="field__label">Material</span>
+          <input className="field__input" value={form.material} onChange={set("material")} />
+          <MultiChips
+            value={form.material}
+            options={MATERIAL_OPTS}
+            onChange={(v) => setForm((f) => ({ ...f, material: v }))}
+          />
+        </label>
+
+        <label className="field">
+          <span className="field__label">Silhouette</span>
+          <input className="field__input" value={form.silhouette} onChange={set("silhouette")} />
+          <SingleChips
+            value={form.silhouette}
+            options={SILHOUETTE_OPTS}
+            onPick={(v) => setForm((f) => ({ ...f, silhouette: v }))}
+          />
+        </label>
 
         <div className="field-row">
           <label className="field">
             <span className="field__label">Color</span>
             <input className="field__input" value={form.color} onChange={set("color")} />
-          </label>
-          <label className="field">
-            <span className="field__label">Material</span>
-            <input className="field__input" value={form.material} onChange={set("material")} />
-          </label>
-        </div>
-
-        <div className="field-row">
-          <label className="field">
-            <span className="field__label">Silhouette</span>
-            <input className="field__input" value={form.silhouette} onChange={set("silhouette")} />
           </label>
           <label className="field">
             <span className="field__label">Detail</span>

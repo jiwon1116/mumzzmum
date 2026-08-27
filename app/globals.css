@@ -1536,7 +1536,8 @@ main {
   .page__title {
     overflow-wrap: anywhere;
   }
-  .grid-collection {
+  .grid-collection,
+  .grid-products {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px 12px;
   }

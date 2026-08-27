@@ -3,6 +3,19 @@
 import { useRef, useState } from "react";
 import { createClient } from "@/shared/supabase/client";
 
+// Unique id that also works on insecure origins (e.g. http://192.168.x.x on a
+// phone) where crypto.randomUUID() is unavailable.
+function uid() {
+  try {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+  } catch {
+    /* fall through */
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export default function ImageUploader({
   value,
   onChange,
@@ -30,21 +43,29 @@ export default function ImageUploader({
     setError(null);
     const uploaded: string[] = [];
 
-    for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${folder}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("media")
-        .upload(path, file, { cacheControl: "3600", upsert: false });
-      if (upErr) {
-        setError(upErr.message);
-        continue;
+    try {
+      for (const file of Array.from(files)) {
+        const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+        const path = `${folder}/${uid()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("media")
+          .upload(path, file, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: file.type || undefined,
+          });
+        if (upErr) {
+          setError(upErr.message);
+          continue;
+        }
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("media").getPublicUrl(path);
+        uploaded.push(publicUrl);
+        if (!multiple) break;
       }
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("media").getPublicUrl(path);
-      uploaded.push(publicUrl);
-      if (!multiple) break;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "업로드 중 오류가 발생했습니다.");
     }
 
     setBusy(false);
