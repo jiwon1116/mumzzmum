@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Media from "./Media";
+import Filmstrip from "./Filmstrip";
 import ViewToggle, { type View } from "./ViewToggle";
 import type { Inspiration } from "@/shared/types";
 
@@ -25,28 +25,14 @@ export default function InspirationBrowser({
       </div>
 
       {view === "gallery" ? (
-        <div className="masonry">
-          {items.map((item) => (
-            <Link href={`/inspiration/${item.id}`} key={item.id}>
-              <figure className="insp-card">
-                <Media
-                  src={item.image_url}
-                  alt={item.title ?? item.note}
-                  label="Inspiration"
-                  sizes="(max-width: 720px) 50vw, (max-width: 1080px) 33vw, 25vw"
-                />
-                <figcaption className="insp-card__note">
-                  {item.title ?? item.note}
-                </figcaption>
-                {item.tags && item.tags.length > 0 && (
-                  <div className="insp-card__tags">
-                    {item.tags.map((t) => `#${t}`).join("  ")}
-                  </div>
-                )}
-              </figure>
-            </Link>
-          ))}
-        </div>
+        <Filmstrip
+          shots={items.map((item) => ({
+            id: item.id,
+            title: item.title ?? item.note ?? "Inspiration",
+            src: item.image_url,
+            href: `/inspiration/${item.id}`,
+          }))}
+        />
       ) : (
         <ul className="list">
           {items.map((item) => (

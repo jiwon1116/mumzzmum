@@ -75,6 +75,10 @@ body {
   overflow-x: clip; /* guard against horizontal overflow on mobile */
 }
 
+html {
+  scrollbar-gutter: stable; /* reserve scrollbar space so modals don't shift */
+}
+
 body {
   background: var(--bg);
   color: var(--ink);
@@ -261,8 +265,10 @@ main {
 }
 
 /* ---------- section header (editorial column) ---------- */
+/* only vertical padding — horizontal gutter comes from .container */
 .page {
-  padding: clamp(40px, 6vw, 72px) 0 var(--section-gap);
+  padding-top: clamp(40px, 6vw, 72px);
+  padding-bottom: var(--section-gap);
 }
 
 .page__head {
@@ -893,6 +899,18 @@ main {
   text-underline-offset: 5px;
 }
 
+/* ---------- form preset chips (quick option picks) ---------- */
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 12px;
+}
+
+.presets .chip {
+  font-size: var(--text-body-sm);
+}
+
 /* ---------- toolbar + gallery/list view toggle ---------- */
 .toolbar {
   display: flex;
@@ -985,6 +1003,158 @@ main {
   }
 }
 
+/* ---------- filmstrip — horizontal drag/swipe photo gallery ---------- */
+.filmstrip {
+  display: flex;
+  gap: clamp(12px, 2vw, 28px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 16px;
+  cursor: grab;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none; /* clean — drag/swipe to scroll */
+}
+
+.filmstrip::-webkit-scrollbar {
+  display: none;
+}
+
+.filmstrip:active {
+  cursor: grabbing;
+}
+
+.filmstrip__item {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.filmstrip__item img {
+  height: clamp(240px, 48vh, 440px);
+  width: auto;
+  display: block;
+  background: var(--bg);
+  pointer-events: none;
+  -webkit-user-drag: none;
+  transition: opacity 0.3s ease;
+}
+
+.filmstrip__item:hover img {
+  opacity: 0.9;
+}
+
+.filmstrip__ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(240px, 48vh, 440px);
+  width: clamp(180px, 30vw, 300px);
+  background: var(--bg);
+  color: var(--ink);
+  opacity: 0.4;
+  font-size: var(--text-body-sm);
+  text-align: center;
+  padding: 16px;
+}
+
+.filmstrip__cap {
+  display: block;
+  margin-top: 10px;
+  max-width: 280px;
+  font-size: var(--text-body-sm);
+  color: var(--ink);
+  opacity: 0.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .filmstrip__item img,
+  .filmstrip__ph {
+    height: clamp(260px, 56vh, 420px);
+  }
+}
+
+/* ---------- coverflow — 3D exhibition gallery ---------- */
+.coverflow {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 44px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: clamp(32px, 6vh, 64px) 40vw;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+.coverflow::-webkit-scrollbar {
+  display: none;
+}
+
+.coverflow:active {
+  cursor: grabbing;
+}
+
+.coverflow__item {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  transform-style: preserve-3d;
+  transition: opacity 0.2s ease;
+  will-change: transform, opacity;
+  text-align: center;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.coverflow__item img {
+  height: clamp(240px, 54vh, 480px);
+  width: auto;
+  display: block;
+  background: var(--bg);
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.coverflow__ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(240px, 54vh, 480px);
+  width: clamp(200px, 32vw, 320px);
+  background: var(--bg);
+  color: var(--ink);
+  opacity: 0.4;
+  font-size: var(--text-body-sm);
+  text-align: center;
+  padding: 16px;
+}
+
+.coverflow__cap {
+  display: block;
+  margin-top: 16px;
+  font-size: var(--text-body-sm);
+  color: var(--ink);
+  opacity: 0.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .coverflow {
+    padding: 32px 30vw;
+  }
+  .coverflow__item img,
+  .coverflow__ph {
+    height: clamp(240px, 50vh, 400px);
+  }
+}
+
 /* ---------- mobile: clean up list-page headers & grids ---------- */
 @media (max-width: 900px) {
   .page__head {
@@ -1049,16 +1219,20 @@ main {
 .modal {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 1000; /* above sticky nav + cover-flow 3D layers */
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: clamp(16px, 5vh, 64px) 16px;
-  background: color-mix(in srgb, var(--ink) 40%, transparent);
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .modal__panel {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 680px;
   background: var(--bg);

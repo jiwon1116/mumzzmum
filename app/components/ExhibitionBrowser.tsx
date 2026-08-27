@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Media from "./Media";
+import Coverflow from "./Coverflow";
 import ViewToggle, { type View } from "./ViewToggle";
 import type { ExhibitionPiece } from "@/shared/types";
 
@@ -25,28 +25,14 @@ export default function ExhibitionBrowser({
       </div>
 
       {view === "gallery" ? (
-        <div className="grid-insta">
-          {pieces.map((piece) => (
-            <Link
-              href={`/exhibition/${piece.id}`}
-              className="insta-cell"
-              key={piece.id}
-            >
-              <Media
-                src={piece.image_urls?.[0]}
-                alt={piece.title}
-                label={piece.title}
-                sizes="(max-width: 640px) 50vw, 33vw"
-              />
-              <div className="insta-cell__overlay">
-                <span className="insta-cell__title">{piece.title}</span>
-                <span className="insta-cell__kind">
-                  {[piece.category, piece.date].filter(Boolean).join(" — ")}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <Coverflow
+          shots={pieces.map((piece) => ({
+            id: piece.id,
+            title: piece.title,
+            src: piece.image_urls?.[0] ?? null,
+            href: `/exhibition/${piece.id}`,
+          }))}
+        />
       ) : (
         <ul className="list">
           {pieces.map((piece) => (

@@ -7,6 +7,75 @@ import ImageUploader from "./ImageUploader";
 import { createBrand, updateBrand } from "@/server/actions";
 import type { Brand } from "@/shared/types";
 
+// Quick-pick presets — click to fill; typing custom values still works.
+const TARGET_OPTS = ["10대", "20대", "30대", "40대+", "유니섹스", "캐주얼", "미니멀", "스트릿", "빈티지", "워크웨어"];
+const PRICE_OPTS = ["~5만원", "5–10만원", "10–20만원", "20–50만원", "50만원+"];
+const MOOD_OPTS = ["Vintage", "Minimal", "Street", "Workwear", "Americana", "Casual", "Romantic", "Avant-garde", "Luxury", "Sporty"];
+const CHARACTER_OPTS = ["Vintage", "Workwear", "Americana", "Street", "Minimal", "Casual", "Heritage", "Utility", "Luxury", "Sporty", "Romantic", "Avant-garde"];
+
+/** Single-value picker — clicking sets (or clears) the field. */
+function SingleChips({
+  value,
+  options,
+  onPick,
+}: {
+  value: string;
+  options: string[];
+  onPick: (v: string) => void;
+}) {
+  return (
+    <div className="presets">
+      {options.map((o) => (
+        <button
+          type="button"
+          key={o}
+          className={`chip${value === o ? " is-active" : ""}`}
+          onClick={() => onPick(value === o ? "" : o)}
+        >
+          {o}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Multi-value picker — clicking toggles the tag in a separator-joined string. */
+function MultiChips({
+  value,
+  sep,
+  options,
+  onChange,
+}: {
+  value: string;
+  sep: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  const parts = value
+    ? value.split(sep.trim() ? sep.trim() : sep).map((s) => s.trim()).filter(Boolean)
+    : [];
+  const toggle = (o: string) => {
+    const next = parts.includes(o)
+      ? parts.filter((p) => p !== o)
+      : [...parts, o];
+    onChange(next.join(sep));
+  };
+  return (
+    <div className="presets">
+      {options.map((o) => (
+        <button
+          type="button"
+          key={o}
+          className={`chip${parts.includes(o) ? " is-active" : ""}`}
+          onClick={() => toggle(o)}
+        >
+          {o}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 const empty = {
   name: "",
   slug: "",
@@ -140,6 +209,11 @@ export default function BrandForm({ brand }: { brand?: Brand }) {
           <label className="field">
             <span className="field__label">Price Range</span>
             <input className="field__input" value={form.price_range} onChange={set("price_range")} />
+            <SingleChips
+              value={form.price_range}
+              options={PRICE_OPTS}
+              onPick={(v) => setForm((f) => ({ ...f, price_range: v }))}
+            />
           </label>
         </div>
 
@@ -147,10 +221,22 @@ export default function BrandForm({ brand }: { brand?: Brand }) {
           <label className="field">
             <span className="field__label">Target</span>
             <input className="field__input" value={form.target} onChange={set("target")} />
+            <MultiChips
+              value={form.target}
+              sep=" / "
+              options={TARGET_OPTS}
+              onChange={(v) => setForm((f) => ({ ...f, target: v }))}
+            />
           </label>
           <label className="field">
             <span className="field__label">Mood</span>
             <input className="field__input" value={form.mood} onChange={set("mood")} />
+            <MultiChips
+              value={form.mood}
+              sep=" · "
+              options={MOOD_OPTS}
+              onChange={(v) => setForm((f) => ({ ...f, mood: v }))}
+            />
           </label>
         </div>
 
@@ -166,6 +252,12 @@ export default function BrandForm({ brand }: { brand?: Brand }) {
             value={form.brand_character}
             onChange={set("brand_character")}
             placeholder="Vintage, Workwear, Americana"
+          />
+          <MultiChips
+            value={form.brand_character}
+            sep=", "
+            options={CHARACTER_OPTS}
+            onChange={(v) => setForm((f) => ({ ...f, brand_character: v }))}
           />
         </label>
 

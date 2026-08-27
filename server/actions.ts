@@ -39,6 +39,14 @@ function slugify(input: string) {
     .replace(/^-|-$/g, "");
 }
 
+// Non-latin names (e.g. Korean) slugify to an empty string, which collides on
+// the unique slug column. Fall back to a short random slug so saving always
+// works and the URL stays unique.
+function toSlug(preferred: string | null | undefined, name: string) {
+  const base = preferred?.trim() ? slugify(preferred) : slugify(name);
+  return base || `brand-${crypto.randomUUID().slice(0, 8)}`;
+}
+
 // ── Brands ───────────────────────────────────────────────────
 type BrandInput = Partial<Omit<Brand, "id" | "created_at">> & { name: string };
 
@@ -46,7 +54,7 @@ export async function createBrand(input: BrandInput): Promise<Result<{ slug: str
   const { supabase, error } = await adminClient();
   if (!supabase) return { ok: false, error: error! };
 
-  const slug = input.slug?.trim() ? slugify(input.slug) : slugify(input.name);
+  const slug = toSlug(input.slug, input.name);
   const { error: dbError } = await supabase
     .from("brands")
     .insert({ ...input, slug });
@@ -64,7 +72,7 @@ export async function updateBrand(
   const { supabase, error } = await adminClient();
   if (!supabase) return { ok: false, error: error! };
 
-  const slug = input.slug?.trim() ? slugify(input.slug) : slugify(input.name);
+  const slug = toSlug(input.slug, input.name);
   const { error: dbError } = await supabase
     .from("brands")
     .update({ ...input, slug })
