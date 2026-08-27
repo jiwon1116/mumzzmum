@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { TextMorph } from "./TextMorph";
 
 export type FloatItem = { id: string; title: string; src: string };
 
@@ -241,12 +240,9 @@ export default function FloatingGallery({
 
   return (
     <div ref={containerRef} className="fg">
-      <TextMorph
-        className="fg__word"
-        words={["OBSESSION", "INSTINCT", "TASTE", "ARCHIVE"]}
-        interval={2400}
-        morphDuration={680}
-      />
+      <h1 className="fg__word" aria-hidden>
+        ARCHIVE
+      </h1>
 
       {items.map((item, i) => (
         <a

@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+/* Home-only font — GMarketSans (Light/Medium/Bold) */
+@font-face {
+  font-family: "GMarketSans";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff")
+    format("woff");
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GMarketSans";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff")
+    format("woff");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GMarketSans";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff")
+    format("woff");
+  font-weight: 700;
+  font-display: swap;
+}
+
 /* ============================================================
    MUMZZMUM · "Surface" editorial system
    Bone-white canvas (#f7f7f7), pure black ink (#000000). Monochrome —
@@ -1727,6 +1750,7 @@ main {
   flex-direction: column;
   background: var(--bg);
   color: var(--ink);
+  font-family: "GMarketSans", var(--font-munken);
 }
 
 /* --- header: wordmark left, links right, hamburger implied, borderless --- */
@@ -1825,44 +1849,18 @@ main {
 .fg__word {
   position: absolute;
   top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  height: clamp(2.4rem, 8vw, 76px);
+  left: 50%;
+  transform: translate(-50%, -50%);
   margin: 0;
   font-weight: 500;
   font-size: clamp(2.4rem, 8vw, 76px);
   letter-spacing: -0.02em;
   line-height: 1;
-  text-align: center;
   color: var(--ink);
   pointer-events: none;
   user-select: none;
   z-index: 1;
-}
-
-/* TextMorph — gooey liquid word morph.
-   The goo filter is toggled on only while morphing (JS), so the resting
-   word stays crisp. */
-.text-morph {
-  filter: none;
-}
-
-.text-morph__t {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  margin: 0 auto;
-  width: 100%;
-  text-align: center;
   white-space: nowrap;
-}
-
-.text-morph__svg {
-  position: absolute;
-  width: 0;
-  height: 0;
 }
 
 .fg__tile {
