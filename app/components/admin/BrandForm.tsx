@@ -90,6 +90,13 @@ export default function BrandForm({ brand }: { brand?: Brand }) {
     ) =>
       setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  // Open from a clean slate so nothing carries over from the last time.
+  function openFresh() {
+    setForm(toForm(brand));
+    setError(null);
+    setOpen(true);
+  }
+
   function submit() {
     setError(null);
     const payload = {
@@ -128,7 +135,7 @@ export default function BrandForm({ brand }: { brand?: Brand }) {
       <button
         type="button"
         className={brand ? "btn btn--ghost" : "btn"}
-        onClick={() => setOpen(true)}
+        onClick={openFresh}
       >
         {brand ? "Edit" : "+ Add Brand"}
       </button>

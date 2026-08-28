@@ -45,6 +45,14 @@ export default function ExhibitionForm({ piece }: { piece?: ExhibitionPiece }) {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  // Open from a clean slate so nothing carries over from the last time.
+  function openFresh() {
+    setForm(toForm(piece));
+    setImages(piece?.image_urls ?? []);
+    setError(null);
+    setOpen(true);
+  }
+
   function submit() {
     setError(null);
     if (!form.title.trim()) {
@@ -80,7 +88,7 @@ export default function ExhibitionForm({ piece }: { piece?: ExhibitionPiece }) {
       <button
         type="button"
         className={piece ? "btn btn--ghost" : "btn"}
-        onClick={() => setOpen(true)}
+        onClick={openFresh}
       >
         {piece ? "Edit" : "+ Add Piece"}
       </button>

@@ -119,6 +119,14 @@ export default function ProductForm({
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  // Open from a clean slate so nothing carries over from the last time.
+  function openFresh() {
+    setForm(toForm(product));
+    setImages(product?.image_urls ?? []);
+    setError(null);
+    setOpen(true);
+  }
+
   function submit() {
     setError(null);
     if (!form.name.trim()) {
@@ -155,7 +163,7 @@ export default function ProductForm({
       <button
         type="button"
         className={product ? "btn btn--ghost" : "btn"}
-        onClick={() => setOpen(true)}
+        onClick={openFresh}
       >
         {product ? "Edit" : "+ Add Product"}
       </button>
