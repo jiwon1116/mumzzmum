@@ -90,7 +90,7 @@ export default function ExhibitionForm({ piece }: { piece?: ExhibitionPiece }) {
         onClose={() => setOpen(false)}
         title={piece ? "Edit Piece" : "Add Piece"}
       >
-        <label className="field">
+        <div className="field">
           <span className="field__label">Images</span>
           <ImageUploader
             value={images}
@@ -98,7 +98,7 @@ export default function ExhibitionForm({ piece }: { piece?: ExhibitionPiece }) {
             multiple
             folder="exhibition"
           />
-        </label>
+        </div>
 
         <div className="field-row">
           <label className="field">

@@ -128,7 +128,11 @@ export default function ImageUploader({
               <button
                 type="button"
                 className="uploader__remove"
-                onClick={() => removeAt(i)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  removeAt(i);
+                }}
                 aria-label="Remove image"
               >
                 ✕

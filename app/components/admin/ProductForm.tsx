@@ -165,7 +165,7 @@ export default function ProductForm({
         onClose={() => setOpen(false)}
         title={product ? "Edit Product" : "Add Product"}
       >
-        <label className="field">
+        <div className="field">
           <span className="field__label">Images</span>
           <ImageUploader
             value={images}
@@ -173,7 +173,7 @@ export default function ProductForm({
             multiple
             folder="products"
           />
-        </label>
+        </div>
 
         <label className="field">
           <span className="field__label">Product Name *</span>

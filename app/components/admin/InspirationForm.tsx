@@ -74,14 +74,14 @@ export default function InspirationForm({ item }: { item?: Inspiration }) {
         onClose={() => setOpen(false)}
         title={item ? "Edit Inspiration" : "Add Inspiration"}
       >
-        <label className="field">
+        <div className="field">
           <span className="field__label">Image</span>
           <ImageUploader
             value={images}
             onChange={setImages}
             folder="inspiration"
           />
-        </label>
+        </div>
 
         <div className="field-row">
           <label className="field">
