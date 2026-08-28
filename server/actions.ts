@@ -29,6 +29,133 @@ async function adminClient() {
   return { error: null, supabase };
 }
 
+// ── URL import (paste a product/brand link → prefill the form) ─────
+function decodeEntities(s: string) {
+  return s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&#x27;/gi, "'")
+    .replace(/&nbsp;/g, " ")
+    .trim();
+}
+
+function metaContent(html: string, key: string): string | null {
+  const esc = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const patterns = [
+    new RegExp(
+      `<meta[^>]+(?:property|name)=["']${esc}["'][^>]*\\bcontent=["']([^"']*)["']`,
+      "i",
+    ),
+    new RegExp(
+      `<meta[^>]+content=["']([^"']*)["'][^>]*(?:property|name)=["']${esc}["']`,
+      "i",
+    ),
+  ];
+  for (const re of patterns) {
+    const m = html.match(re);
+    if (m && m[1]) return decodeEntities(m[1]);
+  }
+  return null;
+}
+
+export type UrlImport = {
+  title: string | null;
+  price: string | null;
+  description: string | null;
+  image_url: string | null;
+};
+
+export async function importFromUrl(url: string): Promise<Result<UrlImport>> {
+  const { supabase, error } = await adminClient();
+  if (!supabase) return { ok: false, error: error! };
+
+  let target: URL;
+  try {
+    target = new URL(url.trim());
+  } catch {
+    return { ok: false, error: "올바른 URL이 아닙니다." };
+  }
+
+  try {
+    const res = await fetch(target.toString(), {
+      headers: {
+        "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
+        accept: "text/html",
+      },
+    });
+    if (!res.ok) {
+      return { ok: false, error: `페이지를 불러오지 못했습니다 (${res.status}).` };
+    }
+    const html = await res.text();
+
+    const title =
+      metaContent(html, "og:title") ||
+      metaContent(html, "twitter:title") ||
+      (html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]
+        ? decodeEntities(html.match(/<title[^>]*>([^<]+)<\/title>/i)![1])
+        : null);
+    const description =
+      metaContent(html, "og:description") || metaContent(html, "description");
+    const price =
+      metaContent(html, "og:price:amount") ||
+      metaContent(html, "product:price:amount") ||
+      metaContent(html, "twitter:data1");
+
+    // Download the preview image into our own storage so it stays stable.
+    let image_url: string | null = null;
+    const rawImg =
+      metaContent(html, "og:image") ||
+      metaContent(html, "og:image:url") ||
+      metaContent(html, "twitter:image");
+    if (rawImg) {
+      try {
+        const imgUrl = new URL(rawImg, target).toString();
+        const imgRes = await fetch(imgUrl);
+        if (imgRes.ok) {
+          const ct = imgRes.headers.get("content-type") || "image/jpeg";
+          const ext = ct.includes("png")
+            ? "png"
+            : ct.includes("webp")
+              ? "webp"
+              : ct.includes("gif")
+                ? "gif"
+                : "jpg";
+          const buf = new Uint8Array(await imgRes.arrayBuffer());
+          const path = `imports/${crypto.randomUUID()}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("media")
+            .upload(path, buf, { contentType: ct, upsert: false });
+          if (!upErr) {
+            image_url = supabase.storage.from("media").getPublicUrl(path)
+              .data.publicUrl;
+          }
+        }
+      } catch {
+        /* leave image_url null on any image failure */
+      }
+    }
+
+    return {
+      ok: true,
+      data: {
+        title: title?.trim() || null,
+        price: price?.trim() || null,
+        description: description?.trim() || null,
+        image_url,
+      },
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : "가져오기에 실패했습니다.",
+    };
+  }
+}
+
 function slugify(input: string) {
   return input
     .toLowerCase()

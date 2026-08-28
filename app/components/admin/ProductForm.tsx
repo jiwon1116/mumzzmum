@@ -4,7 +4,11 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "./Modal";
 import ImageUploader from "./ImageUploader";
-import { createProduct, updateProduct } from "@/server/actions";
+import {
+  createProduct,
+  updateProduct,
+  importFromUrl,
+} from "@/server/actions";
 import type { Product } from "@/shared/types";
 
 // Quick-pick presets (click to fill; typing custom still works).
@@ -113,6 +117,31 @@ export default function ProductForm({
   const [images, setImages] = useState<string[]>(product?.image_urls ?? []);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+
+  async function runImport() {
+    const url = importUrl.trim();
+    if (!url) return;
+    setImporting(true);
+    setError(null);
+    const res = await importFromUrl(url);
+    setImporting(false);
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
+    const d = res.data;
+    if (!d) return;
+    setForm((f) => ({
+      ...f,
+      name: f.name || d.title || "",
+      price: f.price || d.price || "",
+      detail: f.detail || d.description || "",
+    }));
+    if (d.image_url) setImages((prev) => [...prev, d.image_url as string]);
+    setImportUrl("");
+  }
 
   const set =
     (key: keyof typeof form) =>
@@ -173,6 +202,35 @@ export default function ProductForm({
         onClose={() => setOpen(false)}
         title={product ? "Edit Product" : "Add Product"}
       >
+        <div className="field">
+          <span className="field__label">
+            상품 URL 붙여넣기 → 자동 채우기
+          </span>
+          <div className="importrow">
+            <input
+              className="field__input"
+              value={importUrl}
+              onChange={(e) => setImportUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  runImport();
+                }
+              }}
+              placeholder="https://…  (제목·이미지·가격 자동 입력)"
+              inputMode="url"
+            />
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={runImport}
+              disabled={importing || !importUrl.trim()}
+            >
+              {importing ? "가져오는 중…" : "가져오기"}
+            </button>
+          </div>
+        </div>
+
         <div className="field">
           <span className="field__label">Images</span>
           <ImageUploader

@@ -1236,6 +1236,23 @@ main {
   opacity: 0.45;
 }
 
+/* ---------- URL import row ---------- */
+.importrow {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.importrow .field__input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.importrow .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 /* ---------- form preset chips (quick option picks) ---------- */
 .presets {
   display: flex;
